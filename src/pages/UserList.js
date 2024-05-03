@@ -12,8 +12,9 @@ import Paper from "@mui/material/Paper";
 import InputBase from "@mui/material/InputBase";
 import IconButton from "@mui/material/IconButton";
 import SearchIcon from "@mui/icons-material/Search";
-import { useDispatch } from 'react-redux';
+import { useDispatch } from "react-redux";
 import { addBookMark } from "../redux/action";
+import { Typography } from "@mui/material";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -39,9 +40,8 @@ export default function UsersList() {
   const dispatch = useDispatch();
   const [users, setUsers] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [bookmarkedUsers, setBookmarkedUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const usersPerPage = 10;
+  const usersPerPage = 5;
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -74,35 +74,21 @@ export default function UsersList() {
 
   // Handle bookmarking user
   const handleBookmark = (userId, user) => {
-    dispatch(addBookMark(user))
-    console.log(addBookMark(user))
-    const userToBookmark = currentUsers.find((user) => user.id === userId);
-    setBookmarkedUsers((prevState) => [...prevState, userToBookmark]);
+    dispatch(addBookMark(user));
     setUsers((prevState) => prevState.filter((user) => user.id !== userId));
-  };
-
-  // Handle unbookmarking user
-  const handleUnBookmark = (userId) => {
-    const userToUnBookmark = bookmarkedUsers.find((user) => user.id === userId);
-    setUsers((prevState) => [...prevState, userToUnBookmark]);
-    setBookmarkedUsers((prevState) =>
-      prevState.filter((user) => user.id !== userId)
-    );
   };
 
   return (
     <>
-      {/* Search input */}
-      {/* <input
-        type="text"
-        placeholder="Search by name"
-        value={searchTerm}
-        onChange={handleSearch}
-      /> */}
-
       <Paper
         component="form"
-        sx={{ p: "2px 4px", display: "flex", alignItems: "center", width: 300, mb: '15px' }}
+        sx={{
+          p: "2px 4px",
+          display: "flex",
+          alignItems: "center",
+          width: 300,
+          mb: "15px",
+        }}
       >
         <InputBase
           sx={{ ml: 1, flex: 1 }}
@@ -123,8 +109,8 @@ export default function UsersList() {
               <StyledTableCell align="right">Action</StyledTableCell>
             </TableRow>
           </TableHead>
-          <TableBody>
-            {currentUsers.map((user) => (
+          <TableBody>{currentUsers.length > 0 ? 
+            currentUsers.map((user) => (
               <StyledTableRow key={user.id}>
                 <StyledTableCell component="th" scope="row">
                   {user.login}
@@ -146,17 +132,21 @@ export default function UsersList() {
                   </Button>
                 </StyledTableCell>
               </StyledTableRow>
-            ))}
+            )) : <Typography variant="h6" align="center" color="textSecondary">
+            No data found.
+          </Typography> }
           </TableBody>
         </Table>
       </TableContainer>
       {/* Pagination */}
-      <div className="pagination">
+      <div
+        className="pagination"
+        style={{ marginTop: "20px", marginLeft: "750px", display: "flex" }}
+      >
         {Array.from({
           length: Math.ceil(filteredUsers.length / usersPerPage),
         }).map((_, index) => (
           <Button
-            // sx={{mt: '20px', gap: '10px'}}
             variant="outlined"
             key={index}
             onClick={() => paginate(index + 1)}
